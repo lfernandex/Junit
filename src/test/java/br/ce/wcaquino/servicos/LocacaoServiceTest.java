@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Date;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -21,17 +22,32 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 
 public class LocacaoServiceTest {
+	
+	
+	private LocacaoService service;
+	
+	//A variável deixa de estar no escopo do teste, 
+	//por ser estatica, ela não entra no escopo do testes, e vai 
+	//para o escopo da classe, assim o junit não reinicia
+	private static int count = 0;
 
 	@Rule
 	public ErrorCollector error = new ErrorCollector();
 	
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
+	
+	@Before
+	public void setup() {
+		service = new LocacaoService();
+		count++;
+		System.out.println(count);
+	}
 
 	@Test
 	public void testeLocacao() throws Exception {
 		// cenario
-		LocacaoService service = new LocacaoService();
+		
 		Usuario usuario = new Usuario("Usuario 1");
 		Filme filme = new Filme("Filme 1", 2, 5.0);
 
@@ -48,7 +64,7 @@ public class LocacaoServiceTest {
 	// Forma Elegante
 	@Test(expected = FilmeSemEstoqueException.class)
 	public void testeLocacao_filmeSemEstoque() throws Exception {
-		LocacaoService service = new LocacaoService();
+		
 		Usuario usuario = new Usuario("Usuario 1");
 		Filme filme = new Filme("Filme 1", 0, 5.0);
 
@@ -59,7 +75,7 @@ public class LocacaoServiceTest {
 	// Forma Robusta - Segura a exception e verifica a mensagem
 	@Test
 	public void testeLocacao_UsuarioVaio() throws FilmeSemEstoqueException {
-		LocacaoService service = new LocacaoService();
+		
 		Filme filme = new Filme("Filme2", 2, 4.0);
 
 		try {
@@ -75,7 +91,7 @@ public class LocacaoServiceTest {
 
 	@Test
 	public void testeLocacao_FilmeVazio() throws FilmeSemEstoqueException, LocadoraException {
-		LocacaoService service = new LocacaoService();
+		
 		Usuario usuario = new Usuario("Usuario 1");
 
 		exception.expect(LocadoraException.class);
