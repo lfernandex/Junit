@@ -7,7 +7,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,21 +24,20 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 
 public class LocacaoServiceTest {
-	
-	
+
 	private LocacaoService service;
-	
-	//A variável deixa de estar no escopo do teste, 
-	//por ser estatica, ela não entra no escopo do testes, e vai 
-	//para o escopo da classe, assim o junit não reinicia
+
+	// A variável deixa de estar no escopo do test
+	// por ser estatica, ela não entra no escopo do testes, e vai
+	// para o escopo da classe, assim o junit não reinicia o valor
 	private static int count = 0;
 
 	@Rule
 	public ErrorCollector error = new ErrorCollector();
-	
+
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
-	
+
 	@Before
 	public void setup() {
 		service = new LocacaoService();
@@ -47,9 +48,9 @@ public class LocacaoServiceTest {
 	@Test
 	public void testeLocacao() throws Exception {
 		// cenario
-		
+
 		Usuario usuario = new Usuario("Usuario 1");
-		Filme filme = new Filme("Filme 1", 2, 5.0);
+		List<Filme> filme = Arrays.asList(new Filme("Filme 1", 2, 5.0));
 
 		// acao
 		Locacao locacao;
@@ -64,19 +65,18 @@ public class LocacaoServiceTest {
 	// Forma Elegante
 	@Test(expected = FilmeSemEstoqueException.class)
 	public void testeLocacao_filmeSemEstoque() throws Exception {
-		
+
 		Usuario usuario = new Usuario("Usuario 1");
-		Filme filme = new Filme("Filme 1", 0, 5.0);
+		List<Filme> filme = Arrays.asList(new Filme("Filme 1", 0, 5.0));
 
 		service.alugarFilme(usuario, filme);
 	}
 
-	
 	// Forma Robusta - Segura a exception e verifica a mensagem
 	@Test
 	public void testeLocacao_UsuarioVaio() throws FilmeSemEstoqueException {
-		
-		Filme filme = new Filme("Filme2", 2, 4.0);
+
+		List<Filme> filme = Arrays.asList(new Filme("Filme 1", 2, 5.0));
 
 		try {
 			service.alugarFilme(null, filme);
@@ -85,19 +85,19 @@ public class LocacaoServiceTest {
 			assertThat(e.getMessage(), is("Usuário vazio"));
 		}
 	}
-	
-	//Forma Nova - Esta mandando ao junit fazer o tratamento, e 
+
+	// Forma Nova - Esta mandando ao junit fazer o tratamento, e
 	// passa ao junit o que está esperando
 
 	@Test
 	public void testeLocacao_FilmeVazio() throws FilmeSemEstoqueException, LocadoraException {
-		
+
 		Usuario usuario = new Usuario("Usuario 1");
 
 		exception.expect(LocadoraException.class);
 		exception.expectMessage("Filme vazio");
-		
+
 		service.alugarFilme(usuario, null);
-		
+
 	}
 }
