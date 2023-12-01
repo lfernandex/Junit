@@ -5,12 +5,17 @@ import static br.ce.wcaquino.utils.DataUtils.obterDataComDiferencaDias;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,6 +27,7 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
+import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoServiceTest {
 
@@ -47,6 +53,8 @@ public class LocacaoServiceTest {
 
 	@Test
 	public void deveAlugarFIlme() throws Exception {
+		
+		assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
 
 		Usuario usuario = new Usuario("Usuario 1");
 		List<Filme> filme = Arrays.asList(new Filme("Filme 1", 2, 5.0));
@@ -142,5 +150,20 @@ public class LocacaoServiceTest {
 		Locacao resultado = service.alugarFilme(usuario, filmes);
 		
 		assertThat(resultado.getValor(), is(14.0));
+	}
+	
+	@Test
+	public void DeveDevolverNaSegundaAoAlugarNoSabado() throws FilmeSemEstoqueException, LocadoraException {
+		
+		assumeTrue(DataUtils.verificarDiaSemana(new Date(),Calendar.SATURDAY));
+		
+		Usuario usuario = new Usuario("Usuario1");
+		List<Filme> filmes = Arrays.asList(new Filme("Filme1", 4, 2.0));
+		
+		Locacao retorno = service.alugarFilme(usuario, filmes);
+		
+		boolean eSegunda = DataUtils.verificarDiaSemana(retorno.getDataRetorno(), Calendar.MONDAY);
+		
+		assertTrue(eSegunda);
 	}
 }
